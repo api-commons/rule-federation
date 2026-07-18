@@ -1,0 +1,181 @@
+{
+  "version": "0.1",
+  "central": {
+    "name": "Acme API Baseline",
+    "owner": "API Platform Team",
+    "url": "https://github.com/acme/api-standards",
+    "rules": [
+      {
+        "code": "api-versioning-uri",
+        "name": "Major version in the URI path",
+        "severity": "warn",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/versioning.md",
+        "steward": "api-platform",
+        "rationale": "A visible major version in the path (/v2/...) lets consumers pin to a stable contract and lets us evolve without silently breaking them.",
+        "conversation": "https://github.com/acme/api-standards/issues/12",
+        "version": "2.1.0",
+        "since": "2024-09"
+      },
+      {
+        "code": "operation-tags",
+        "name": "Every operation is tagged",
+        "severity": "warn",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/tags.md",
+        "steward": "api-platform",
+        "rationale": "Tags are how our docs, catalog, and SDK generators group operations. Untagged operations fall out of the developer experience.",
+        "conversation": "https://github.com/acme/api-standards/issues/7",
+        "version": "1.4.0",
+        "since": "2024-06"
+      },
+      {
+        "code": "oauth-scopes-defined",
+        "name": "Every secured operation declares OAuth scopes",
+        "severity": "error",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/scopes.md",
+        "steward": "identity-guild",
+        "rationale": "Scopes are the coarse, auditable handle on what a token may do. An operation behind OAuth with no declared scope can't be reasoned about or least-privileged.",
+        "conversation": "https://github.com/acme/api-standards/issues/31",
+        "version": "3.0.0",
+        "since": "2025-01",
+        "roadmap": "Aligning scope names on a shared resource:action convention — see the domain-grown oauth-scope-naming rule proposed for promotion."
+      },
+      {
+        "code": "error-response-schema",
+        "name": "4xx/5xx responses use the shared Problem schema",
+        "severity": "warn",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/errors.md",
+        "steward": "api-platform",
+        "rationale": "One machine-readable error shape (RFC 9457 problem+json) means clients handle failures the same way across every API.",
+        "conversation": "https://github.com/acme/api-standards/issues/19",
+        "version": "1.1.0",
+        "since": "2024-11"
+      },
+      {
+        "code": "no-http-basic",
+        "name": "No HTTP Basic authentication",
+        "severity": "error",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/auth.md",
+        "steward": "identity-guild",
+        "rationale": "Basic ships long-lived credentials on every request. Everything new must use OAuth 2.1 or mTLS.",
+        "conversation": "https://github.com/acme/api-standards/issues/22",
+        "version": "2.0.0",
+        "since": "2024-08"
+      },
+      {
+        "code": "pagination-cursor",
+        "name": "Collection endpoints use cursor pagination",
+        "severity": "warn",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/pagination.md",
+        "rationale": "Cursor pagination stays correct as data changes under the reader; offset pagination silently skips and repeats rows at scale.",
+        "version": "1.0.0",
+        "since": "2025-03"
+      },
+      {
+        "code": "contact-info",
+        "name": "API description carries contact info",
+        "severity": "info",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/contact.md",
+        "steward": "api-platform",
+        "version": "1.0.0",
+        "since": "2024-05"
+      },
+      {
+        "code": "request-idempotency",
+        "name": "Unsafe methods support idempotency",
+        "severity": "info",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/idempotency.md",
+        "steward": "api-platform",
+        "rationale": "A retried POST should not create two resources. We recommend an idempotency key on unsafe methods.",
+        "conversation": "https://github.com/acme/api-standards/issues/44",
+        "version": "0.3.0",
+        "since": "2025-05",
+        "roadmap": "Planned to move from info to warn in the next baseline release now that Payments has proven the pattern."
+      },
+      {
+        "code": "deprecation-sunset-header",
+        "name": "Deprecated operations carry a Sunset header",
+        "severity": "hint",
+        "docUrl": "https://github.com/acme/api-standards/blob/main/rules/deprecation.md",
+        "steward": "api-platform",
+        "rationale": "A machine-readable Sunset date (RFC 8594) gives consumers a countdown instead of a surprise 410.",
+        "version": "0.2.0",
+        "since": "2025-06"
+      }
+    ]
+  },
+  "domains": [
+    {
+      "id": "payments",
+      "name": "Payments",
+      "steward": "team-payments",
+      "repo": "https://github.com/acme/payments-ruleset",
+      "adoptVia": "extends: ['https://rules.acme.dev/baseline#recommended', './payments.rules.yaml']",
+      "adoptions": [
+        { "code": "api-versioning-uri", "state": "inherit" },
+        { "code": "operation-tags", "state": "inherit" },
+        { "code": "oauth-scopes-defined", "state": "inherit" },
+        { "code": "error-response-schema", "state": "override", "severity": "error", "reason": "Financial clients reconcile on machine-readable errors; a soft warning isn't enough.", "conversation": "https://github.com/acme/payments-ruleset/issues/3" },
+        { "code": "no-http-basic", "state": "inherit" },
+        { "code": "pagination-cursor", "state": "override", "severity": "error", "reason": "Ledger and transaction listings must not skip or repeat rows under concurrent writes.", "conversation": "https://github.com/acme/payments-ruleset/issues/5" },
+        { "code": "request-idempotency", "state": "override", "severity": "error", "reason": "Double-charge protection is non-negotiable — an idempotency key is mandatory on every money-moving call.", "conversation": "https://github.com/acme/payments-ruleset/issues/8" },
+        { "code": "contact-info", "state": "inherit" },
+        { "code": "deprecation-sunset-header", "state": "waived", "reason": "No deprecated payment operations yet; will adopt when the first one lands." },
+        { "code": "payments-idempotency-key", "state": "local", "severity": "error", "name": "Mutations require an Idempotency-Key header", "rationale": "Every POST/PATCH/DELETE must accept and honor an Idempotency-Key header so a retried request is safe.", "steward": "team-payments", "proposePromotion": true },
+        { "code": "payments-amount-minor-units", "state": "local", "severity": "error", "name": "Monetary amounts are integers in minor units", "rationale": "Amounts are integer minor units with an ISO 4217 currency — never floats — to avoid rounding drift." }
+      ]
+    },
+    {
+      "id": "identity",
+      "name": "Identity & Access",
+      "steward": "identity-guild",
+      "repo": "https://github.com/acme/identity-ruleset",
+      "adoptVia": "extends: ['https://rules.acme.dev/baseline#recommended', './identity.rules.yaml']",
+      "adoptions": [
+        { "code": "api-versioning-uri", "state": "inherit" },
+        { "code": "operation-tags", "state": "inherit" },
+        { "code": "oauth-scopes-defined", "state": "inherit" },
+        { "code": "error-response-schema", "state": "inherit" },
+        { "code": "no-http-basic", "state": "inherit" },
+        { "code": "pagination-cursor", "state": "inherit" },
+        { "code": "request-idempotency", "state": "deferred", "reason": "Adopting next quarter once our token endpoints support retry keys.", "conversation": "https://github.com/acme/identity-ruleset/issues/11" },
+        { "code": "contact-info", "state": "inherit" },
+        { "code": "deprecation-sunset-header", "state": "waived", "reason": "Auth endpoints are versioned wholesale, not deprecated per-operation." },
+        { "code": "oauth-scope-naming", "state": "local", "severity": "warn", "name": "Scopes follow a resource:action naming convention", "rationale": "Scope strings must be resource:action (e.g. accounts:read) so they are self-describing, greppable, and consistent across every domain.", "steward": "identity-guild", "proposePromotion": true }
+      ]
+    },
+    {
+      "id": "citizen",
+      "name": "Citizen-Facing",
+      "steward": "team-public",
+      "repo": "https://github.com/acme/citizen-ruleset",
+      "adoptVia": "extends: ['https://rules.acme.dev/baseline#recommended', './citizen.rules.yaml']",
+      "adoptions": [
+        { "code": "api-versioning-uri", "state": "override", "severity": "error", "reason": "Public consumers we don't control can't be broken silently — an unversioned path fails the build.", "conversation": "https://github.com/acme/citizen-ruleset/issues/2" },
+        { "code": "operation-tags", "state": "inherit" },
+        { "code": "oauth-scopes-defined", "state": "override", "severity": "warn", "reason": "Many public read endpoints are intentionally unauthenticated open data, so a hard error produces false positives; we warn and review.", "conversation": "https://github.com/acme/citizen-ruleset/issues/6" },
+        { "code": "error-response-schema", "state": "inherit" },
+        { "code": "no-http-basic", "state": "inherit" },
+        { "code": "pagination-cursor", "state": "inherit" },
+        { "code": "request-idempotency", "state": "inherit" },
+        { "code": "contact-info", "state": "override", "severity": "warn", "reason": "A public API with no reachable owner is a support incident waiting to happen — contact info is required, not advisory.", "conversation": "https://github.com/acme/citizen-ruleset/issues/9" },
+        { "code": "deprecation-sunset-header", "state": "deferred", "reason": "Waiting on the shared Sunset middleware before enforcing." },
+        { "code": "oauth-scope-naming", "state": "local", "severity": "warn", "name": "Scopes follow a resource:action naming convention", "rationale": "We adopted the same resource:action scope convention Identity uses so our public scopes read the same way." }
+      ]
+    },
+    {
+      "id": "legacy",
+      "name": "Legacy Estate",
+      "repo": "https://github.com/acme/legacy-ruleset",
+      "adoptVia": "extends: ['https://rules.acme.dev/baseline#recommended', './legacy.rules.yaml']",
+      "adoptions": [
+        { "code": "api-versioning-uri", "state": "waived", "reason": "40 SOAP-era services version in the query string; documented deviation, no reflow planned this year.", "conversation": "https://github.com/acme/legacy-ruleset/issues/4" },
+        { "code": "operation-tags", "state": "override", "severity": "info" },
+        { "code": "oauth-scopes-defined", "state": "waived", "reason": "These services authenticate with gateway-issued API keys, not OAuth; scopes don't apply.", "conversation": "https://github.com/acme/legacy-ruleset/issues/7" },
+        { "code": "error-response-schema", "state": "waived" },
+        { "code": "no-http-basic", "state": "override", "severity": "warn", "reason": "Two internal services still use Basic behind mTLS; migration is tracked and warn keeps it visible without blocking.", "conversation": "https://github.com/acme/legacy-ruleset/issues/10" },
+        { "code": "pagination-cursor", "state": "waived", "reason": "Offset pagination is baked into shipped desktop clients we can't update." },
+        { "code": "contact-info", "state": "inherit" }
+      ]
+    }
+  ]
+}

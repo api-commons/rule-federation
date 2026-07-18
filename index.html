@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rule Federation — a federated API governance rule registry</title>
+    <meta name="description" content="Model a central baseline ruleset and the domains that adopt it, then see the federation as a matrix: who inherits a rule, who overrides its severity and why, who waived it, which rules are contested or unstewarded, and which local rules the center should promote. Runs entirely in your browser." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Google tag (gtag.js) — API Commons -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WNSPT4B4S8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WNSPT4B4S8');
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <strong>Rule Federation</strong>
+        <span class="tag">federation.apicommons.org</span>
+      </div>
+      <nav>
+        <a href="#" id="nav-about" title="What a federated rule registry is">About</a>
+        <a href="https://apis.io" target="_blank" rel="noopener">APIs.io</a>
+        <a href="https://apicommons.org" target="_blank" rel="noopener">API Commons</a>
+        <a href="https://github.com/api-commons/rule-federation" target="_blank" rel="noopener">GitHub</a>
+        <button id="engage-ae" class="engage-btn" type="button" title="Work with API Evangelist on federated governance">Get help</button>
+      </nav>
+    </header>
+    <!-- Laneworks ad network (ads.laneworks.net) -->
+    <script async src="https://ads.laneworks.net/embed.js"></script>
+    <div data-laneworks-ad="top-banner"></div>
+
+    <div class="toolbar">
+      <button class="measure-btn" id="compute" type="button">Compute federation ▸</button>
+      <button class="ghost-btn" id="load-sample" type="button">Load sample</button>
+      <button class="ghost-btn" id="dl-model" type="button">Download model</button>
+      <label class="focus">Focus
+        <select id="focus">
+          <option value="all">All rules</option>
+          <option value="contested">Contested</option>
+          <option value="unstewarded">Unstewarded</option>
+          <option value="undocumented">Undocumented</option>
+          <option value="orphan">Orphaned</option>
+        </select>
+      </label>
+      <div class="counts" id="status" aria-live="polite"></div>
+    </div>
+
+    <details class="drawer" id="drawer">
+      <summary>Model — a central baseline and the domains that adopt it (JSON or YAML)</summary>
+      <div class="io-grid">
+        <div class="io full">
+          <h4>Federation model <span class="muted">(<code>federation.json</code> — one file you keep in Git)</span>
+            <span class="io-btns"><button class="mini-btn" id="up-model" type="button">Upload</button><button class="mini-btn" id="dl-model2" type="button">Download</button></span>
+          </h4>
+          <textarea id="model-text" spellcheck="false" placeholder="Paste your federation model — central.rules[] plus domains[]…"></textarea>
+          <input type="file" id="file-model" accept=".json,.yaml,.yml,application/json" hidden />
+        </div>
+      </div>
+    </details>
+
+    <main class="stage">
+      <section id="report"><div class="loading" id="loading">Loading…</div></section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

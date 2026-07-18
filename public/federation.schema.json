@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://federation.apicommons.org/federation.schema.json",
+  "title": "Rule Federation model",
+  "description": "A central baseline ruleset and the domains that adopt it — the machine-readable model behind a federated API governance rule registry.",
+  "type": "object",
+  "required": ["central", "domains"],
+  "properties": {
+    "version": { "type": "string" },
+    "central": {
+      "type": "object",
+      "description": "The central baseline the federation shares.",
+      "required": ["rules"],
+      "properties": {
+        "name": { "type": "string" },
+        "owner": { "type": "string", "description": "The accountable central owner of the baseline." },
+        "url": { "type": "string", "format": "uri" },
+        "rules": { "type": "array", "items": { "$ref": "#/$defs/centralRule" } }
+      }
+    },
+    "domains": { "type": "array", "items": { "$ref": "#/$defs/domain" } }
+  },
+  "$defs": {
+    "severity": { "type": "string", "enum": ["error", "warn", "info", "hint", "off"] },
+    "centralRule": {
+      "type": "object",
+      "required": ["code", "severity"],
+      "properties": {
+        "code": { "type": "string", "description": "Stable rule identifier, matched by domain adoptions." },
+        "name": { "type": "string" },
+        "severity": { "$ref": "#/$defs/severity", "description": "The baseline severity the center holds." },
+        "docUrl": { "type": "string", "format": "uri" },
+        "steward": { "type": "string", "description": "Who owns this rule centrally. A rule with no steward is a liability." },
+        "rationale": { "type": "string", "description": "Why the API pattern this rule governs actually matters — the storytelling that makes change stick." },
+        "conversation": { "type": "string", "format": "uri", "description": "The issue/PR/thread where this rule is discussed." },
+        "version": { "type": "string" },
+        "since": { "type": "string" },
+        "roadmap": { "type": "string", "description": "A planned change to the rule." }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "steward": { "type": "string" },
+        "repo": { "type": "string", "format": "uri" },
+        "adoptVia": { "type": "string", "description": "Copy-paste snippet showing how the domain extends the baseline by reference." },
+        "adoptions": { "type": "array", "items": { "$ref": "#/$defs/adoption" } }
+      }
+    },
+    "adoption": {
+      "type": "object",
+      "required": ["code", "state"],
+      "properties": {
+        "code": { "type": "string", "description": "References a central rule; for a local rule, the domain's own code." },
+        "state": { "type": "string", "enum": ["inherit", "override", "waived", "deferred", "local"] },
+        "severity": { "$ref": "#/$defs/severity", "description": "Required for override and local; the domain's effective severity." },
+        "reason": { "type": "string", "description": "Why the domain deviates. A deviation with no reason is undocumented — the tool flags it." },
+        "conversation": { "type": "string", "format": "uri" },
+        "name": { "type": "string", "description": "Local rule only." },
+        "rationale": { "type": "string", "description": "Local rule only." },
+        "steward": { "type": "string", "description": "Local rule only." },
+        "proposePromotion": { "type": "boolean", "description": "Local rule only — the domain proposes the center adopt this into the baseline." }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "rule-federation",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A federated API governance rule registry — model a central baseline ruleset and the domains that adopt it, and see the federation as a matrix: who inherits a rule, who overrides its severity and why, who waived it, and which local rules the center should promote.",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "yaml": "^2.6.1"
+  }
+}
